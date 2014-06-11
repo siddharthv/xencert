@@ -230,8 +230,8 @@ class StorageHandler:
             if not os.path.exists(self.storage_conf['pathHandlerUtil']):                 
                 raise Exception("Path handler util specified for multipathing tests does not exist!")
             
-            if self.storage_conf['storage_type'] == 'lvmohba' and self.storage_conf['pathInfo'] == None: 
-                raise Exception("Path related information not specified for storage type lvmohba.")
+#            if self.storage_conf['storage_type'] == 'lvmohba' and self.storage_conf['pathInfo'] == None: 
+#                raise Exception("Path related information not specified for storage type lvmohba.")
             
             if self.storage_conf['count'] != None:
                 iterationCount = int(self.storage_conf['count']) + 1
@@ -623,10 +623,14 @@ class StorageHandler:
     def BlockUnblockPaths(self, blockOrUnblock, script, noOfPaths, passthrough):
         try:
             stdout = ''
-            if blockOrUnblock:
-                cmd = [os.path.join(os.getcwd(), 'blockunblockpaths'), script, 'block', str(noOfPaths), passthrough]
+            #don't pass arguments to script if passthrough = None
+            if passthrough == None:
+                cmd = [os.path.join(os.getcwd(), 'blockunblockpaths')]
             else:
-                cmd = [os.path.join(os.getcwd(), 'blockunblockpaths'), script, 'unblock', str(noOfPaths), passthrough]
+                if blockOrUnblock:
+                    cmd = [os.path.join(os.getcwd(), 'blockunblockpaths'), script, 'block', str(noOfPaths), passthrough]
+                else:
+                    cmd = [os.path.join(os.getcwd(), 'blockunblockpaths'), script, 'unblock', str(noOfPaths), passthrough]
             
             (rc, stdout, stderr) = util.doexec(cmd,'')
 
@@ -2448,12 +2452,14 @@ class StorageHandlerHBA(StorageHandler):
             self.noOfPaths = 0
             self.noOfTotalPaths = 0
             scriptReturn = self.BlockUnblockPaths(True, self.storage_conf['pathHandlerUtil'], self.noOfPaths, self.storage_conf['pathInfo'])
-            blockedAndfull = scriptReturn.split('::')[1]
-            self.noOfPaths = int(blockedAndfull.split(',')[0])
-            self.noOfTotalPaths = int(blockedAndfull.split(',')[1])
+            if scriptReturn != '':
+                blockedAndfull = scriptReturn.split('::')[1]
+                self.noOfPaths = int(blockedAndfull.split(',')[0])
+                self.noOfTotalPaths = int(blockedAndfull.split(',')[1])
+                self.blockedpathinfo = scriptReturn.split('::')[0]
+
             XenCertPrint("No of paths which should fail is %s out of total %s" % \
                                             (self.noOfPaths, self.noOfTotalPaths))
-            self.blockedpathinfo = scriptReturn.split('::')[0]
             PrintOnSameLine(" -> Blocking paths (%s)\n" % self.blockedpathinfo)
             return True
         except Exception, e:            
