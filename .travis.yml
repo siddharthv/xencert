@@ -7,4 +7,5 @@ install:
 # command to run tests
 script:
         - "pylint --version"
+        - "pylint --rcfile=tests/pylintrc ./XenCert/*.py"
         - "PYTHONPATH=./XenCert pylint --rcfile=tests/pylintrc ./XenCert/*.py"
