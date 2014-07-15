@@ -53,6 +53,8 @@ def report(predicate, condition):
     if predicate != condition:
         Print("Condition Failed, check SMlog")
 
+def util():
+    pass
 # Hardcoded time limit for Functional tests in hours
 timeLimitFunctional = 4
 
