@@ -20,6 +20,7 @@ import sys
 sys.path.insert(0, "/opt/xensource/sm")
 import scsiutil
 import util
+import xs_errors
 import glob
 import xml.dom.minidom
 import lvutil, vhdutil
@@ -703,7 +704,7 @@ def get_lun_scsiid_devicename_mapping(targetIQN, portal):
 
         return lunToScsiId
     except util.CommandException, inst:
-        XenCertPrint("Failed to find any LUNs for IQN: %s and portal: %s" % targetIQN, portal)
+        XenCertPrint("Failed to find any LUNs for IQN: %s and portal: %s" % (targetIQN, portal))
         return {}
 
 def parse_config(vendor, product):
